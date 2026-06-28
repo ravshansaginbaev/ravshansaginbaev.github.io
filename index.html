@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ravshan Saginbaev · CS & AI</title>
-  <!-- Font Awesome Icons (free) -->
+  <title>Ravshan Saginbaev · Cyber & AI</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     * {
@@ -14,15 +13,50 @@
     }
 
     body {
-      background: #0b0e1a;
+      background: #05080f;
       color: #e2e8f0;
       font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-      line-height: 1.6;
       overflow-x: hidden;
+      line-height: 1.7;
+      cursor: none;
     }
 
-    /* ---- animated background particles (canvas) ---- */
-    #particles-canvas {
+    /* ---------- CURSOR WITH AFTERIMAGE ---------- */
+    #cursor-trail-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+      overflow: hidden;
+    }
+
+    .cursor-trail {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      will-change: transform, opacity, width, height;
+    }
+
+    #cursor-dot {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      background: #38bdf8;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 10000;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 40px #38bdf8, 0 0 80px rgba(56, 189, 248, 0.4), 0 0 150px rgba(56, 189, 248, 0.2);
+      transition: width 0.2s, height 0.2s, background 0.3s;
+      will-change: transform;
+    }
+
+    /* ---------- BACKGROUND CANVAS ---------- */
+    #bg-canvas {
       position: fixed;
       top: 0;
       left: 0;
@@ -30,161 +64,364 @@
       height: 100%;
       z-index: 0;
       pointer-events: none;
+      opacity: 0.8;
     }
 
-    /* ---- main container (above particles) ---- */
+    /* ---------- MAIN CONTAINER ---------- */
     .container {
       position: relative;
       z-index: 2;
       max-width: 1100px;
       margin: 0 auto;
-      padding: 2rem 1.5rem 4rem;
+      padding: 1.5rem 1.5rem 4rem;
     }
 
-    /* ---- header / hero ---- */
+    /* ---------- SECTIONS WITH SCROLL ANIMATIONS ---------- */
+    section {
+      opacity: 0;
+      transform: translateY(100px) scale(0.92);
+      transition: all 1.2s cubic-bezier(0.23, 1, 0.32, 1);
+      margin-bottom: 2.5rem;
+    }
+
+    section.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    /* ---------- HERO WITH MEGA EFFECTS ---------- */
     .hero {
       text-align: center;
-      padding: 3rem 0 2.5rem;
-      border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+      padding: 5rem 0 3.5rem;
+      position: relative;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.05);
       margin-bottom: 3rem;
-      animation: fadeSlideDown 1s ease-out;
+      overflow: visible;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      left: 50%;
+      width: 150%;
+      height: 250%;
+      background: radial-gradient(ellipse at center, rgba(56, 189, 248, 0.04) 0%, transparent 70%);
+      transform: translateX(-50%);
+      animation: heroPulse 4s infinite alternate;
+      pointer-events: none;
+    }
+
+    @keyframes heroPulse {
+      0% { opacity: 0.3; transform: translateX(-50%) scale(0.7); }
+      100% { opacity: 0.9; transform: translateX(-50%) scale(1.3); }
+    }
+
+    .hero-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .hero h1 {
-      font-size: 3.2rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      background: linear-gradient(135deg, #e2e8f0 0%, #94a3b8 80%);
+      font-size: 5.2rem;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #f0f9ff 0%, #60a5fa 20%, #a78bfa 50%, #c084fc 75%, #f472b6 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      text-shadow: 0 0 30px rgba(56, 189, 248, 0.2);
+      animation: hueShift 4s infinite alternate;
+      text-shadow: 0 0 100px rgba(56, 189, 248, 0.1);
+      position: relative;
+      display: inline-block;
+    }
+
+    .hero h1::after {
+      content: '';
+      position: absolute;
+      top: -30px;
+      left: -30px;
+      right: -30px;
+      bottom: -30px;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.06) 0%, transparent 70%);
+      filter: blur(60px);
+      z-index: -1;
+      animation: glowPulse 2s infinite alternate;
+    }
+
+    @keyframes glowPulse {
+      0% { opacity: 0.2; transform: scale(0.8); }
+      100% { opacity: 0.8; transform: scale(1.2); }
+    }
+
+    @keyframes hueShift {
+      0% { filter: hue-rotate(0deg) brightness(1); }
+      50% { filter: hue-rotate(20deg) brightness(1.3); }
+      100% { filter: hue-rotate(40deg) brightness(1.1); }
     }
 
     .hero h1 span {
-      background: linear-gradient(145deg, #38bdf8, #818cf8);
+      background: linear-gradient(145deg, #38bdf8, #818cf8, #c084fc, #f472b6, #fb7185);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      text-shadow: 0 0 40px rgba(56, 189, 248, 0.5);
+      animation: textGlow 1.5s infinite alternate;
+    }
+
+    @keyframes textGlow {
+      0% { filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.2)); }
+      100% { filter: drop-shadow(0 0 80px rgba(56, 189, 248, 0.6)) drop-shadow(0 0 150px rgba(129, 140, 248, 0.3)); }
     }
 
     .hero .badge {
       display: inline-block;
-      margin-top: 0.75rem;
-      padding: 0.4rem 1.4rem;
-      border-radius: 40px;
-      background: rgba(56, 189, 248, 0.08);
-      border: 1px solid rgba(56, 189, 248, 0.25);
-      backdrop-filter: blur(4px);
-      font-size: 0.9rem;
-      letter-spacing: 1px;
+      margin-top: 1.5rem;
+      padding: 0.7rem 2.5rem;
+      border-radius: 60px;
+      background: rgba(56, 189, 248, 0.04);
+      border: 1px solid rgba(56, 189, 248, 0.1);
+      backdrop-filter: blur(16px);
+      font-size: 1.05rem;
+      letter-spacing: 2.5px;
       color: #b9d9f0;
-      box-shadow: 0 0 20px rgba(56, 189, 248, 0.05);
-      animation: pulseGlow 3s infinite alternate;
+      animation: floatBadge 2.5s ease-in-out infinite;
+      box-shadow: 0 0 60px rgba(56, 189, 248, 0.02);
+      transition: 0.4s;
+      position: relative;
+      overflow: hidden;
     }
 
-    .hero .badge i {
-      margin-right: 8px;
-      color: #38bdf8;
+    .hero .badge::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.05), transparent 60%);
+      animation: badgeShimmer 4s infinite linear;
+    }
+
+    @keyframes badgeShimmer {
+      0% { transform: rotate(0deg) scale(0.5); opacity: 0; }
+      50% { opacity: 1; }
+      100% { transform: rotate(360deg) scale(1.5); opacity: 0; }
+    }
+
+    .hero .badge:hover {
+      transform: scale(1.08);
+      border-color: #38bdf8;
+      box-shadow: 0 0 80px rgba(56, 189, 248, 0.1);
+    }
+
+    @keyframes floatBadge {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(1.5deg); }
     }
 
     .hero p {
-      margin-top: 1rem;
-      font-size: 1.2rem;
+      margin-top: 1.8rem;
+      font-size: 1.4rem;
       color: #94a3b8;
-      max-width: 600px;
+      max-width: 700px;
       margin-left: auto;
       margin-right: auto;
+      animation: fadeIn 2.5s;
+      letter-spacing: 0.5px;
     }
 
-    /* ---- section titles ---- */
-    .section-title {
-      font-size: 1.8rem;
-      font-weight: 600;
-      margin: 3rem 0 1.5rem;
+    .hero p i {
+      color: #38bdf8;
+      margin: 0 8px;
+      animation: iconPulse 1.5s infinite;
+    }
+
+    @keyframes iconPulse {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.4) rotate(10deg); }
+    }
+
+    /* ---------- PROFILE IMAGE ---------- */
+    .profile-section {
+      display: flex;
+      justify-content: center;
+      margin: 2rem 0 3rem;
+    }
+
+    .profile-image {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      border: 3px solid rgba(56, 189, 248, 0.3);
+      background: linear-gradient(135deg, #1e293b, #0f172a);
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      border-left: 4px solid #38bdf8;
-      padding-left: 1.2rem;
+      justify-content: center;
+      font-size: 5rem;
+      color: #38bdf8;
+      box-shadow: 0 0 60px rgba(56, 189, 248, 0.1), 0 0 120px rgba(56, 189, 248, 0.05);
+      animation: profileGlow 3s infinite alternate;
+      overflow: hidden;
+    }
+
+    .profile-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    @keyframes profileGlow {
+      0% { box-shadow: 0 0 40px rgba(56, 189, 248, 0.05); border-color: rgba(56, 189, 248, 0.2); }
+      100% { box-shadow: 0 0 80px rgba(56, 189, 248, 0.15), 0 0 150px rgba(129, 140, 248, 0.05); border-color: rgba(56, 189, 248, 0.5); }
+    }
+
+    /* ---------- SECTION TITLES WITH MEGA EFFECTS ---------- */
+    .section-title {
+      font-size: 2.6rem;
+      font-weight: 700;
+      margin: 4.5rem 0 2.2rem;
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
       color: #f1f5f9;
-      letter-spacing: -0.3px;
+      position: relative;
+      padding-bottom: 1rem;
+    }
+
+    .section-title::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, #38bdf8, #a78bfa, #f472b6, #fb7185, transparent);
+      animation: titleLine 3s infinite alternate;
+      border-radius: 4px;
+    }
+
+    @keyframes titleLine {
+      0% { transform: scaleX(0.1); opacity: 0.2; }
+      100% { transform: scaleX(1); opacity: 1; }
     }
 
     .section-title i {
       color: #38bdf8;
-      font-size: 1.6rem;
-      opacity: 0.8;
+      font-size: 2.2rem;
+      animation: spinIcon 8s linear infinite;
+      filter: drop-shadow(0 0 30px rgba(56, 189, 248, 0.2));
     }
 
-    /* ---- cards ---- */
-    .card-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 1.8rem;
-      margin: 1.5rem 0 2rem;
+    @keyframes spinIcon {
+      0% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(180deg) scale(1.3); }
+      100% { transform: rotate(360deg) scale(1); }
     }
 
+    /* ---------- CARDS WITH ALTERNATING SIDES ---------- */
     .card {
-      background: rgba(30, 41, 59, 0.6);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      border: 1px solid rgba(56, 189, 248, 0.12);
-      border-radius: 24px;
-      padding: 1.8rem 1.5rem;
-      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
-      opacity: 0;
-      transform: translateY(30px);
-      animation: cardAppear 0.8s forwards;
+      background: rgba(15, 23, 42, 0.5);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(56, 189, 248, 0.04);
+      border-radius: 36px;
+      padding: 2.2rem 2.5rem;
+      transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+      box-shadow: 0 15px 60px rgba(0, 0, 0, 0.4);
+      position: relative;
+      overflow: hidden;
+      transform-style: preserve-3d;
+      perspective: 1200px;
+      margin-bottom: 2rem;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: -60%;
+      left: -60%;
+      width: 220%;
+      height: 220%;
+      background: radial-gradient(circle at 30% 40%, rgba(56, 189, 248, 0.05), transparent 60%);
+      pointer-events: none;
+      animation: cardShimmer 6s infinite alternate;
+    }
+
+    @keyframes cardShimmer {
+      0% { transform: translateX(-30%) translateY(-30%) rotate(0deg) scale(0.8); }
+      100% { transform: translateX(30%) translateY(30%) rotate(10deg) scale(1.2); }
+    }
+
+    .card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 36px;
+      padding: 1.5px;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), transparent, rgba(168, 85, 247, 0.15));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
     }
 
     .card:hover {
-      transform: translateY(-8px) scale(1.01);
-      border-color: rgba(56, 189, 248, 0.5);
-      box-shadow: 0 20px 50px rgba(56, 189, 248, 0.08), 0 0 30px rgba(56, 189, 248, 0.03);
-      background: rgba(30, 41, 59, 0.8);
+      transform: translateY(-20px) scale(1.02);
+      border-color: rgba(56, 189, 248, 0.3);
+      box-shadow: 0 50px 100px rgba(56, 189, 248, 0.08), 0 0 80px rgba(56, 189, 248, 0.03);
+      background: rgba(20, 30, 50, 0.8);
     }
 
-    .card:nth-child(1) { animation-delay: 0.05s; }
-    .card:nth-child(2) { animation-delay: 0.15s; }
-    .card:nth-child(3) { animation-delay: 0.25s; }
-    .card:nth-child(4) { animation-delay: 0.35s; }
-
     .card h3 {
-      font-size: 1.4rem;
+      font-size: 1.6rem;
       font-weight: 600;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.8rem;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 16px;
       color: #f1f5f9;
     }
 
     .card h3 i {
       color: #38bdf8;
-      font-size: 1.3rem;
-      width: 2rem;
+      font-size: 1.8rem;
+      width: 2.4rem;
+      animation: iconFloat 2.5s infinite alternate;
+    }
+
+    @keyframes iconFloat {
+      0% { transform: translateY(0px) rotate(0deg) scale(1); }
+      100% { transform: translateY(-12px) rotate(8deg) scale(1.1); }
     }
 
     .card p {
       color: #cbd5e1;
-      font-size: 0.98rem;
+      font-size: 1.05rem;
       margin-top: 0.3rem;
+      line-height: 1.8;
     }
 
     .card .tag {
       display: inline-block;
-      background: rgba(56, 189, 248, 0.1);
-      padding: 0.2rem 0.9rem;
+      background: rgba(56, 189, 248, 0.05);
+      padding: 0.35rem 1.4rem;
       border-radius: 40px;
-      font-size: 0.75rem;
+      font-size: 0.8rem;
       font-weight: 500;
-      letter-spacing: 0.3px;
+      letter-spacing: 0.5px;
       color: #7fc9f5;
-      border: 1px solid rgba(56, 189, 248, 0.15);
-      margin-top: 0.8rem;
+      border: 1px solid rgba(56, 189, 248, 0.06);
+      margin-top: 1.2rem;
+      transition: 0.4s;
+      backdrop-filter: blur(4px);
+    }
+
+    .card .tag:hover {
+      background: rgba(56, 189, 248, 0.15);
+      box-shadow: 0 0 50px rgba(56, 189, 248, 0.1);
+      transform: scale(1.08);
     }
 
     /* skill pills */
@@ -192,308 +429,545 @@
       display: flex;
       flex-wrap: wrap;
       gap: 0.6rem 0.9rem;
-      margin-top: 0.5rem;
+      margin-top: 1rem;
     }
 
     .skill-pills span {
-      background: rgba(56, 189, 248, 0.06);
-      border: 1px solid rgba(56, 189, 248, 0.08);
-      padding: 0.3rem 1rem;
+      background: rgba(56, 189, 248, 0.02);
+      border: 1px solid rgba(56, 189, 248, 0.03);
+      padding: 0.35rem 1.2rem;
       border-radius: 40px;
       font-size: 0.8rem;
       font-weight: 400;
       color: #b9d9f0;
-      transition: 0.2s;
-      letter-spacing: 0.2px;
+      transition: all 0.4s;
+      letter-spacing: 0.3px;
+      backdrop-filter: blur(4px);
     }
 
     .skill-pills span:hover {
-      background: rgba(56, 189, 248, 0.15);
+      background: rgba(56, 189, 248, 0.12);
       border-color: #38bdf8;
       color: #f0f9ff;
-      transform: scale(1.04);
-      box-shadow: 0 0 20px rgba(56, 189, 248, 0.1);
+      transform: scale(1.12) translateY(-4px);
+      box-shadow: 0 0 40px rgba(56, 189, 248, 0.08);
     }
 
-    /* contact card */
+    /* ---------- ALTERNATING CARD LAYOUT ---------- */
+    .card-left {
+      margin-right: 20%;
+      transform-origin: left center;
+    }
+
+    .card-right {
+      margin-left: 20%;
+      transform-origin: right center;
+    }
+
+    /* Scroll animations for cards - from left and right */
+    .card-left.scroll-in {
+      animation: slideFromLeft 1s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+    }
+
+    .card-right.scroll-in {
+      animation: slideFromRight 1s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+    }
+
+    @keyframes slideFromLeft {
+      0% {
+        opacity: 0;
+        transform: translateX(-80px) scale(0.92);
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+      }
+    }
+
+    @keyframes slideFromRight {
+      0% {
+        opacity: 0;
+        transform: translateX(80px) scale(0.92);
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+      }
+    }
+
+    /* ---------- CONTACT WITH MEGA GLOW ---------- */
     .contact-card {
-      background: rgba(15, 23, 42, 0.7);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(56, 189, 248, 0.2);
-      border-radius: 32px;
-      padding: 2rem 2.5rem;
-      margin: 2.5rem 0 1rem;
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(56, 189, 248, 0.05);
+      border-radius: 56px;
+      padding: 2.8rem 3.5rem;
+      margin: 3.5rem 0 1rem;
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
-      gap: 1.5rem;
-      animation: fadeSlideDown 1s ease-out;
+      gap: 2rem;
+      animation: borderGlow 3s infinite alternate;
+      position: relative;
+    }
+
+    @keyframes borderGlow {
+      0% { border-color: rgba(56, 189, 248, 0.05); box-shadow: 0 0 60px rgba(56, 189, 248, 0.01); }
+      100% { border-color: rgba(129, 140, 248, 0.3); box-shadow: 0 0 120px rgba(56, 189, 248, 0.04); }
     }
 
     .contact-item {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 1rem;
       color: #e2e8f0;
-      font-size: 1rem;
-      transition: 0.2s;
+      font-size: 1.1rem;
+      transition: 0.4s;
+      padding: 0.4rem 1rem;
+      border-radius: 40px;
+    }
+
+    .contact-item:hover {
+      background: rgba(56, 189, 248, 0.03);
+      transform: scale(1.06);
     }
 
     .contact-item i {
       color: #38bdf8;
-      font-size: 1.4rem;
-      width: 2rem;
+      font-size: 1.8rem;
+      width: 2.4rem;
+      transition: 0.4s;
+    }
+
+    .contact-item:hover i {
+      transform: scale(1.4) rotate(15deg);
+      filter: drop-shadow(0 0 30px #38bdf8);
     }
 
     .contact-item a {
       color: #b9d9f0;
       text-decoration: none;
-      border-bottom: 1px dotted rgba(56, 189, 248, 0.2);
-      transition: 0.2s;
+      border-bottom: 1px dotted rgba(56, 189, 248, 0.05);
+      transition: 0.3s;
     }
 
     .contact-item a:hover {
       color: #38bdf8;
       border-bottom-color: #38bdf8;
+      text-shadow: 0 0 40px rgba(56, 189, 248, 0.2);
     }
 
-    /* ---- animations ---- */
-    @keyframes fadeSlideDown {
-      0% { opacity: 0; transform: translateY(-30px); }
-      100% { opacity: 1; transform: translateY(0); }
+    /* ---------- GLITCH DIVIDER ---------- */
+    .glitch-divider {
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #38bdf8, #a78bfa, #f472b6, #fb7185, transparent);
+      margin: 4rem 0;
+      animation: glitchMove 4s infinite alternate;
+      opacity: 0.15;
+      filter: blur(3px);
     }
 
-    @keyframes cardAppear {
-      0% { opacity: 0; transform: translateY(30px); }
-      100% { opacity: 1; transform: translateY(0); }
+    @keyframes glitchMove {
+      0% { transform: translateX(-40px) scaleX(0.3); opacity: 0.05; }
+      100% { transform: translateX(40px) scaleX(1.8); opacity: 0.3; }
     }
 
-    @keyframes pulseGlow {
-      0% { box-shadow: 0 0 10px rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.2); }
-      100% { box-shadow: 0 0 30px rgba(56, 189, 248, 0.2); border-color: rgba(56, 189, 248, 0.5); }
-    }
-
-    /* responsive */
+    /* ---------- RESPONSIVE ---------- */
     @media (max-width: 700px) {
-      .hero h1 { font-size: 2.4rem; }
-      .contact-card { flex-direction: column; align-items: flex-start; }
+      .hero h1 { font-size: 2.8rem; }
+      .contact-card { flex-direction: column; align-items: flex-start; padding: 2rem; }
+      .section-title { font-size: 1.8rem; }
+      .card-left, .card-right {
+        margin-right: 0;
+        margin-left: 0;
+      }
+      #cursor-trail-container, #cursor-dot { display: none; }
+      body { cursor: auto; }
+      .profile-image {
+        width: 130px;
+        height: 130px;
+        font-size: 3.5rem;
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- particle canvas (cyber / AI atmosphere) -->
-  <canvas id="particles-canvas"></canvas>
+  <!-- CURSOR TRAIL CONTAINER -->
+  <div id="cursor-trail-container"></div>
+  <div id="cursor-dot"></div>
+
+  <!-- BACKGROUND CANVAS -->
+  <canvas id="bg-canvas"></canvas>
 
   <div class="container">
 
     <!-- HERO -->
-    <header class="hero">
-      <h1>Ravshan <span>Saginbaev</span></h1>
-      <div class="badge">
-        <i class="fas fa-shield-alt"></i> Offensive Security · AI Research
+    <section class="hero visible">
+      <div class="hero-content">
+        <h1>Ravshan <span>Saginbaev</span></h1>
+        <div class="badge">
+          <i class="fas fa-shield-halved"></i> Offensive AI · Red Team · Secure Dev
+        </div>
+        <p>
+          <i class="fas fa-terminal"></i> Cyber Security · Full Stack · AI · Pentester · Threat Hunter
+          <i class="fas fa-robot"></i>
+        </p>
       </div>
-      <p>
-        <i class="fas fa-terminal" style="color: #38bdf8; margin-right: 6px;"></i>
-        Cyber Security · Full Stack · AI · Pentester
-      </p>
-    </header>
+    </section>
 
-    <!-- ABOUT -->
-    <h2 class="section-title"><i class="fas fa-user-astronaut"></i> About</h2>
-    <div class="card" style="animation-delay: 0.02s;">
-      <p style="font-size: 1.05rem; line-height: 1.7;">
-        <i class="fas fa-quote-left" style="color: #38bdf8; opacity: 0.5; margin-right: 6px;"></i>
-        I engineer secure, intelligent systems. With a deep focus on <strong style="color:#b9d9f0;">penetration testing</strong>, 
-        <strong style="color:#b9d9f0;">AI-driven defence</strong>, and full-stack development, I build platforms that are 
-        both resilient and forward-thinking. My work bridges the gap between cybersecurity and artificial intelligence.
-      </p>
-      <div class="skill-pills" style="margin-top: 1rem;">
-        <span>🔐 Red Teaming</span>
-        <span>🧠 LLM Security</span>
-        <span>⚡ Exploit Dev</span>
-        <span>🛡️ Zero Trust</span>
-        <span>☁️ Cloud Sec</span>
+    <!-- PROFILE IMAGE -->
+    <div class="profile-section">
+      <div class="profile-image">
+        <!-- Replace src with your image URL -->
+        <img src="https://ui-avatars.com/api/?name=Ravshan+Saginbaev&size=180&background=1e293b&color=38bdf8&font-size=0.5&bold=true" alt="Ravshan Saginbaev">
       </div>
     </div>
 
+    <!-- ABOUT -->
+    <section id="about">
+      <h2 class="section-title"><i class="fas fa-user-secret"></i> About</h2>
+      <div class="card card-left scroll-in" id="about-card">
+        <p style="font-size: 1.15rem; line-height: 2;">
+          <i class="fas fa-quote-left" style="color: #38bdf8; opacity: 0.2; margin-right: 12px; font-size: 2rem;"></i>
+          I engineer resilient systems at the intersection of <strong style="color:#b9d9f0;">AI</strong> and 
+          <strong style="color:#b9d9f0;">cybersecurity</strong>. From penetration testing and zero-day research 
+          to building AI-driven defence platforms, I merge offensive thinking with intelligent automation. 
+          My work is driven by the belief that the best defence is a proactive, intelligent offence.
+          <i class="fas fa-quote-right" style="color: #38bdf8; opacity: 0.2; margin-left: 12px; font-size: 2rem;"></i>
+        </p>
+        <div class="skill-pills" style="margin-top: 1.8rem;">
+          <span>🔐 Red Teaming</span>
+          <span>🧠 LLM Security</span>
+          <span>⚡ Exploit Dev</span>
+          <span>🛡️ Zero Trust</span>
+          <span>☁️ Cloud Sec</span>
+          <span>🤖 AI Agents</span>
+          <span>🔍 Threat Intel</span>
+        </div>
+      </div>
+    </section>
+
     <!-- SKILLS -->
-    <h2 class="section-title"><i class="fas fa-microchip"></i> Core competencies</h2>
-    <div class="card-grid">
-      <div class="card">
-        <h3><i class="fas fa-code"></i> Dev</h3>
+    <section id="skills">
+      <h2 class="section-title"><i class="fas fa-microchip"></i> Core competencies</h2>
+      
+      <div class="card card-right scroll-in" id="skill1">
+        <h3><i class="fas fa-code"></i> Full Stack Development</h3>
         <div class="skill-pills">
           <span>Python</span><span>Node.js</span><span>Django</span><span>PHP</span>
           <span>JS/TS</span><span>MySQL</span><span>Linux</span>
         </div>
-        <p class="tag">full-stack · secure coding</p>
+        <p class="tag">secure coding · scalable architecture</p>
       </div>
-      <div class="card">
-        <h3><i class="fas fa-bug"></i> Pentest</h3>
+
+      <div class="card card-left scroll-in" id="skill2">
+        <h3><i class="fas fa-bug"></i> Penetration Testing</h3>
         <div class="skill-pills">
           <span>Burp Suite</span><span>Nmap</span><span>Metasploit</span>
           <span>OSINT</span><span>Wireshark</span>
         </div>
-        <p class="tag">web · network · mobile</p>
+        <p class="tag">web · network · mobile · cloud</p>
       </div>
-      <div class="card">
-        <h3><i class="fas fa-brain"></i> AI / ML</h3>
+
+      <div class="card card-right scroll-in" id="skill3">
+        <h3><i class="fas fa-brain"></i> AI & Machine Learning</h3>
         <div class="skill-pills">
           <span>LLMs</span><span>PyTorch</span><span>RAG</span>
-          <span>NLP</span><span>AI agents</span>
+          <span>NLP</span><span>AI Agents</span>
         </div>
-        <p class="tag">adversarial AI · defence</p>
+        <p class="tag">adversarial AI · defence · automation</p>
       </div>
-      <div class="card">
-        <h3><i class="fas fa-shield-halved"></i> Security</h3>
+
+      <div class="card card-left scroll-in" id="skill4">
+        <h3><i class="fas fa-shield-halved"></i> Security Engineering</h3>
         <div class="skill-pills">
           <span>OWASP</span><span>SIEM</span><span>Zero-day</span>
           <span>Threat Intel</span><span>Forensics</span>
         </div>
-        <p class="tag">blue team · red team</p>
+        <p class="tag">blue team · red team · incident response</p>
       </div>
-    </div>
+    </section>
 
     <!-- PROJECTS -->
-    <h2 class="section-title"><i class="fas fa-cube"></i> Flagship projects</h2>
-    <div class="card-grid">
-      <div class="card">
-        <h3><i class="fas fa-lock"></i> NanoCypher</h3>
-        <p>CTF-as-a-Service platform with real-world challenges, dynamic scoring, and AI-generated hints. Used by 200+ students.</p>
-        <div class="skill-pills" style="margin-top: 0.7rem;">
-          <span>Django</span><span>Docker</span><span>WebSockets</span>
-        </div>
-        <span class="tag"><i class="fas fa-flag"></i> cyber range</span>
-      </div>
-      <div class="card">
-        <h3><i class="fas fa-graduation-cap"></i> EduGlobal AI</h3>
-        <p>AI-powered admission & scholarship platform. Uses LLM retrieval to match students with universities worldwide.</p>
-        <div class="skill-pills" style="margin-top: 0.7rem;">
-          <span>Python</span><span>FastAPI</span><span>RAG</span><span>Postgres</span>
-        </div>
-        <span class="tag"><i class="fas fa-robot"></i> AI · EdTech</span>
-      </div>
-    </div>
+    <section id="projects">
+      <h2 class="section-title"><i class="fas fa-cube"></i> Flagship projects</h2>
 
-    <!-- additional project (pentest) -->
-    <div class="card" style="animation-delay: 0.2s; margin-top: 0.5rem;">
-      <h3><i class="fas fa-skull-crossbones"></i> ReconAI · OSINT automation</h3>
-      <p>Automated reconnaissance tool that correlates public data, subdomains, and exposed services using NLP & graph analysis.</p>
-      <div class="skill-pills">
-        <span>Python</span><span>Neo4j</span><span>NLP</span><span>Shodan</span>
+      <div class="card card-left scroll-in" id="project1">
+        <h3><i class="fas fa-lock"></i> NanoCypher</h3>
+        <p>CTF-as-a-Service platform with real-world challenges, dynamic scoring, and AI-generated hints. Used by 200+ students globally.</p>
+        <div class="skill-pills" style="margin-top: 0.7rem;">
+          <span>Django</span><span>Docker</span><span>WebSockets</span><span>Redis</span>
+        </div>
+        <span class="tag"><i class="fas fa-flag"></i> cyber range · gamification</span>
       </div>
-      <span class="tag"><i class="fas fa-search"></i> OSINT · threat intel</span>
-    </div>
+
+      <div class="card card-right scroll-in" id="project2">
+        <h3><i class="fas fa-graduation-cap"></i> EduGlobal AI</h3>
+        <p>AI-powered admission & scholarship platform. Uses LLM retrieval-augmented generation to match students with universities worldwide.</p>
+        <div class="skill-pills" style="margin-top: 0.7rem;">
+          <span>Python</span><span>FastAPI</span><span>RAG</span><span>Postgres</span><span>LangChain</span>
+        </div>
+        <span class="tag"><i class="fas fa-robot"></i> AI · EdTech · personalization</span>
+      </div>
+
+      <div class="card card-left scroll-in" id="project3">
+        <h3><i class="fas fa-skull-crossbones"></i> ReconAI · OSINT automation</h3>
+        <p>Automated reconnaissance tool that correlates public data, subdomains, and exposed services using NLP & graph analysis.</p>
+        <div class="skill-pills">
+          <span>Python</span><span>Neo4j</span><span>NLP</span><span>Shodan</span><span>GraphQL</span>
+        </div>
+        <span class="tag"><i class="fas fa-search"></i> OSINT · threat intel · automation</span>
+      </div>
+    </section>
+
+    <!-- ACHIEVEMENTS
+    <section id="achievements">
+      <h2 class="section-title"><i class="fas fa-trophy"></i> Achievements & certs</h2>
+
+      <div class="card card-right scroll-in" id="ach1">
+        <h3><i class="fas fa-certificate"></i> OSCP</h3>
+        <p>Offensive Security Certified Professional — advanced penetration testing certification. Completed 24-hour practical exam.</p>
+        <span class="tag">2024</span>
+      </div>
+
+      <div class="card card-left scroll-in" id="ach2">
+        <h3><i class="fas fa-award"></i> AI Security Research</h3>
+        <p>Published research on adversarial attacks against LLMs and defensive prompt engineering techniques.</p>
+        <span class="tag">2025 · IEEE</span>
+      </div>
+
+      <div class="card card-right scroll-in" id="ach3">
+        <h3><i class="fas fa-shield"></i> CVE Discovery</h3>
+        <p>Discovered and responsibly disclosed 3 CVEs in open-source security tools and frameworks.</p>
+        <span class="tag">2024-2025</span>
+      </div>
+    </section> -->
 
     <!-- CONTACT -->
-    <h2 class="section-title"><i class="fas fa-address-card"></i> Connect</h2>
-    <div class="contact-card">
-      <div class="contact-item">
-        <i class="fab fa-github"></i>
-        <a href="https://github.com/ravshansaginbaev" target="_blank">@ravshansaginbaev</a>
+    <section id="contact">
+      <h2 class="section-title"><i class="fas fa-address-card"></i> Connect</h2>
+      <div class="contact-card">
+        <div class="contact-item">
+          <i class="fab fa-github"></i>
+          <a href="https://github.com/ravshansaginbaev" target="_blank">@ravshansaginbaev</a>
+        </div>
+        <div class="contact-item">
+          <i class="fab fa-telegram"></i>
+          <a href="https://t.me/saginbayev" target="_blank">@ravshansaginbaev</a>
+        </div>
+        <div class="contact-item">
+          <i class="fas fa-envelope"></i>
+          <a href="mailto:ravshansaginbaev@gmail.com">ravshansaginbaev@gmail.com</a>
+        </div>
+        <div class="contact-item">
+          <i class="fab fa-linkedin"></i>
+          <a href="#" target="_blank">/in/ravshan-ai</a>
+        </div>
+        <div class="contact-item">
+          <i class="fas fa-shield"></i>
+          <span style="color:#94a3b8; font-size:0.95rem;">PGP: 0x3F9A · 7C2B</span>
+        </div>
       </div>
-      <div class="contact-item">
-        <i class="fas fa-envelope"></i>
-        <a href="mailto:ravshansaginbaev@gmail.com">ravshansaginbaev@gmail.com</a>
-      </div>
-      <div class="contact-item">
-        <i class="fab fa-linkedin"></i>
-        <a href="#" target="_blank">/in/ravshan-security</a>
-      </div>
-      <div class="contact-item">
-        <i class="fas fa-shield"></i>
-        <span style="color:#94a3b8; font-size:0.9rem;">PGP: 0x3F9A · 7C2B</span>
-      </div>
-    </div>
+    </section>
 
-    <!-- subtle footer -->
-    <div style="margin-top: 3rem; text-align: center; font-size: 0.8rem; color: #334155; border-top: 1px solid #1e293b; padding-top: 2rem;">
-      <i class="fas fa-lock" style="color: #38bdf8; opacity:0.4;"></i> 
-      <span style="letter-spacing: 1px;">offensive · defensive · intelligent</span>
-      <i class="fas fa-lock" style="color: #38bdf8; opacity:0.4; margin-left: 10px;"></i>
+    <div class="glitch-divider"></div>
+
+    <div style="margin-top: 3.5rem; text-align: center; font-size: 0.8rem; color: #1e293b; border-top: 1px solid #0f172a; padding-top: 2rem; letter-spacing: 3px;">
+      <i class="fas fa-lock" style="color: #38bdf8; opacity:0.15;"></i> 
+      <span style="color: #334155;">offensive · defensive · intelligent · adaptive</span>
+      <i class="fas fa-lock" style="color: #38bdf8; opacity:0.15; margin-left: 10px;"></i>
     </div>
 
   </div>
 
   <script>
-    (function() {
-      const canvas = document.getElementById('particles-canvas');
-      const ctx = canvas.getContext('2d');
+    // ---------- CURSOR WITH AFTERIMAGE TRAIL ----------
+    const trailContainer = document.getElementById('cursor-trail-container');
+    const cursorDot = document.getElementById('cursor-dot');
+    let mouseX = 0, mouseY = 0;
+    let trailPositions = [];
+    const TRAIL_LENGTH = 25;
 
-      let width, height;
-      let particles = [];
-      const NUM_PARTICLES = 110;
-      const CONNECTION_DIST = 130;
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      cursorDot.style.left = mouseX + 'px';
+      cursorDot.style.top = mouseY + 'px';
+    });
 
-      function initParticles() {
-        particles = [];
-        for (let i = 0; i < NUM_PARTICLES; i++) {
-          particles.push({
-            x: Math.random() * width,
-            y: Math.random() * height,
-            vx: (Math.random() - 0.5) * 0.7,
-            vy: (Math.random() - 0.5) * 0.7,
-            radius: Math.random() * 2 + 1.2,
-          });
-        }
+    function createTrail() {
+      trailPositions.push({ x: mouseX, y: mouseY });
+      if (trailPositions.length > TRAIL_LENGTH) {
+        trailPositions.shift();
       }
 
-      function resizeCanvas() {
-        width = window.innerWidth;
-        height = window.innerHeight;
-        canvas.width = width;
-        canvas.height = height;
-        initParticles();
+      trailContainer.innerHTML = '';
+
+      trailPositions.forEach((pos, index) => {
+        const trail = document.createElement('div');
+        trail.className = 'cursor-trail';
+        const size = 6 + (index / TRAIL_LENGTH) * 20;
+        const opacity = 0.05 + (index / TRAIL_LENGTH) * 0.35;
+        trail.style.width = size + 'px';
+        trail.style.height = size + 'px';
+        trail.style.left = pos.x + 'px';
+        trail.style.top = pos.y + 'px';
+        trail.style.background = `radial-gradient(circle, rgba(56, 189, 248, ${opacity}) 0%, transparent 70%)`;
+        trail.style.boxShadow = `0 0 ${size * 2}px rgba(56, 189, 248, ${opacity * 0.3})`;
+        trail.style.transition = 'all 0.1s';
+        trailContainer.appendChild(trail);
+      });
+
+      requestAnimationFrame(createTrail);
+    }
+
+    setTimeout(createTrail, 100);
+
+    // ---------- BACKGROUND PARTICLES ----------
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    let w, h;
+    let particles = [];
+    const COUNT = 280;
+    const DIST = 160;
+
+    function resize() {
+      w = window.innerWidth;
+      h = window.innerHeight;
+      canvas.width = w;
+      canvas.height = h;
+      initParticles();
+    }
+
+    function initParticles() {
+      particles = [];
+      for (let i = 0; i < COUNT; i++) {
+        particles.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          vx: (Math.random() - 0.5) * 0.8,
+          vy: (Math.random() - 0.5) * 0.8,
+          r: Math.random() * 3 + 1.5,
+          pulse: Math.random() * Math.PI * 2,
+        });
       }
+    }
 
-      function drawParticles() {
-        ctx.clearRect(0, 0, width, height);
+    function drawParticles() {
+      ctx.clearRect(0, 0, w, h);
 
-        // draw lines first
-        for (let i = 0; i < particles.length; i++) {
-          for (let j = i + 1; j < particles.length; j++) {
-            const dx = particles[i].x - particles[j].x;
-            const dy = particles[i].y - particles[j].y;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist < CONNECTION_DIST) {
-              const alpha = 0.25 * (1 - dist / CONNECTION_DIST);
-              ctx.beginPath();
-              ctx.moveTo(particles[i].x, particles[i].y);
-              ctx.lineTo(particles[j].x, particles[j].y);
-              ctx.strokeStyle = `rgba(56, 189, 248, ${alpha})`;
-              ctx.lineWidth = 0.7;
-              ctx.stroke();
-            }
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const d = Math.sqrt(dx * dx + dy * dy);
+          if (d < DIST) {
+            const alpha = 0.35 * (1 - d / DIST);
+            const gradient = ctx.createLinearGradient(
+              particles[i].x, particles[i].y,
+              particles[j].x, particles[j].y
+            );
+            gradient.addColorStop(0, `rgba(56, 189, 248, ${alpha})`);
+            gradient.addColorStop(0.5, `rgba(168, 85, 247, ${alpha * 0.5})`);
+            gradient.addColorStop(1, `rgba(56, 189, 248, ${alpha})`);
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = gradient;
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
           }
         }
-
-        // draw particles
-        for (const p of particles) {
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-          ctx.fillStyle = '#38bdf8';
-          ctx.shadowColor = 'rgba(56, 189, 248, 0.4)';
-          ctx.shadowBlur = 10;
-          ctx.fill();
-          ctx.shadowBlur = 0; // reset for next
-        }
-
-        // move
-        for (const p of particles) {
-          p.x += p.vx;
-          p.y += p.vy;
-          if (p.x < 0 || p.x > width) p.vx *= -1;
-          if (p.y < 0 || p.y > height) p.vy *= -1;
-        }
-
-        requestAnimationFrame(drawParticles);
       }
 
-      window.addEventListener('resize', resizeCanvas);
-      resizeCanvas();
-      drawParticles();
-    })();
+      for (const p of particles) {
+        p.pulse += 0.02;
+        const pulseRadius = p.r + Math.sin(p.pulse) * 0.5;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, pulseRadius, 0, Math.PI * 2);
+        const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, pulseRadius * 2);
+        gradient.addColorStop(0, 'rgba(56, 189, 248, 0.9)');
+        gradient.addColorStop(0.5, 'rgba(56, 189, 248, 0.4)');
+        gradient.addColorStop(1, 'rgba(56, 189, 248, 0)');
+        ctx.fillStyle = gradient;
+        ctx.shadowColor = 'rgba(56, 189, 248, 0.6)';
+        ctx.shadowBlur = 30;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0 || p.x > w) p.vx *= -1;
+        if (p.y < 0 || p.y > h) p.vy *= -1;
+      }
+
+      requestAnimationFrame(drawParticles);
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+    drawParticles();
+
+    // ---------- SCROLL ANIMATIONS FOR SECTIONS ----------
+    const sections = document.querySelectorAll('section');
+    const sectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, {
+      threshold: 0.1,
+      rootMargin: '0px 0px -30px 0px'
+    });
+
+    sections.forEach(section => {
+      section.classList.remove('visible');
+      sectionObserver.observe(section);
+    });
+
+    // ---------- SCROLL ANIMATIONS FOR CARDS (LEFT/RIGHT) ----------
+    const cards = document.querySelectorAll('.card');
+    const cardObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('scroll-in');
+        }
+      });
+    }, {
+      threshold: 0.1,
+      rootMargin: '0px 0px -30px 0px'
+    });
+
+    cards.forEach(card => {
+      card.classList.remove('scroll-in');
+      cardObserver.observe(card);
+    });
+
+    // ---------- CURSOR HOVER EFFECTS ----------
+    document.querySelectorAll('.card, .contact-item, .badge, .profile-image').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cursorDot.style.width = '16px';
+        cursorDot.style.height = '16px';
+        cursorDot.style.background = '#a78bfa';
+        cursorDot.style.boxShadow = '0 0 60px #a78bfa, 0 0 120px rgba(168, 85, 247, 0.4)';
+        document.querySelectorAll('.cursor-trail').forEach(trail => {
+          trail.style.background = `radial-gradient(circle, rgba(168, 85, 247, 0.5) 0%, transparent 70%)`;
+        });
+      });
+      el.addEventListener('mouseleave', () => {
+        cursorDot.style.width = '10px';
+        cursorDot.style.height = '10px';
+        cursorDot.style.background = '#38bdf8';
+        cursorDot.style.boxShadow = '0 0 40px #38bdf8, 0 0 80px rgba(56, 189, 248, 0.4)';
+        document.querySelectorAll('.cursor-trail').forEach(trail => {
+          trail.style.background = `radial-gradient(circle, rgba(56, 189, 248, 0.4) 0%, transparent 70%)`;
+        });
+      });
+    });
   </script>
 
 </body>
